@@ -27,7 +27,7 @@ public class KassaApp {
     public static void main(String[] args) {
     	
     	Dao dao = new Dao();
-    	initDB(dao);
+    	// initDB(dao);
  
     	//  1a
     	
@@ -42,7 +42,7 @@ public class KassaApp {
 		// dao.addServiceFee(0.50);
 
 		// 1c
-		// dao.deleteSalesEvents();
+		dao.deleteSalesEvents();
     }
 }
 

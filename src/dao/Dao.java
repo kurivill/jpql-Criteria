@@ -42,12 +42,17 @@ public class Dao {
 
 		EntityManager em = creds_provider.getEmf().createEntityManager();
 		em.getTransaction().begin();
-		List<SalesEvent> result = null;
-		// logic goes here
-		String jpql = "select s from SalesEvent s where s.amount < :limit";
-		TypedQuery<SalesEvent> q = em.createQuery(jpql, SalesEvent.class);
-		q.setParameter("limit", limit);
-		result = q.getResultList();
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<SalesEvent> cq = cb.createQuery(SalesEvent.class);
+
+		Root<SalesEvent> root = cq.from(SalesEvent.class);
+
+		cq.select(root)
+		  .where(cb.lessThan(root.get("amount"), limit));
+
+		TypedQuery<SalesEvent> query = em.createQuery(cq);
+		List<SalesEvent> result = query.getResultList();
 		
 		em.getTransaction().commit();
 		em.close();
@@ -58,25 +63,35 @@ public class Dao {
 		EntityManager em = creds_provider.getEmf().createEntityManager();
 		em.getTransaction().begin();
 
-		String jpql = "update SalesEvent s set s.amount = s.amount + :fee";
-		int updated = em.createQuery(jpql)
-				.setParameter("fee", fee)
-				.executeUpdate();
-		System.out.println("Updated rows: " + updated);
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<SalesEvent> cu = cb.createCriteriaUpdate(SalesEvent.class);
+		Root<SalesEvent> root = cu.from(SalesEvent.class);
+
+		//cu.set("amount", cb.sum(root.get("amount"), fee));
+		cu.set("amount", cb.sum(root.get("amount"), cb.literal(fee)));
+
+		int updated = em.createQuery(cu).executeUpdate();
+
 		em.getTransaction().commit();
 		em.close();
+
+		System.out.println("Updated rows: " + updated);
 	}
 
 	public void deleteSalesEvents() {
 		EntityManager em = creds_provider.getEmf().createEntityManager();
 		em.getTransaction().begin();
 
-		String jpql = "delete from SalesEvent s";
-		int deleted = em.createQuery(jpql)
-				.executeUpdate();
-		System.out.println("Deleted rows: " + deleted);
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaDelete<SalesEvent> delete = cb.createCriteriaDelete(SalesEvent.class);
+		Root<SalesEvent> root = delete.from(SalesEvent.class);
+
+		int deleted = em.createQuery(delete).executeUpdate();
+
 		em.getTransaction().commit();
 		em.close();
+
+		System.out.println("Deleted rows: " + deleted);
 	}
 	
 }
