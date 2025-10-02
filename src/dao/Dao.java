@@ -44,7 +44,7 @@ public class Dao {
 		em.getTransaction().begin();
 		List<SalesEvent> result = null;
 		// logic goes here
-		String jpql = "SELECT s FROM SalesEvent s WHERE s.amount < :limit";
+		String jpql = "select s from SalesEvent s where s.amount < :limit";
 		TypedQuery<SalesEvent> q = em.createQuery(jpql, SalesEvent.class);
 		q.setParameter("limit", limit);
 		result = q.getResultList();
